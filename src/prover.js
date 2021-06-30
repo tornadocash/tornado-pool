@@ -13,13 +13,14 @@ const { toFixedHex } = require('./utils')
 async function prove(input, keyBasePath) {
   const wasm = await fs.readFileSync(keyBasePath + '.wasm')
   let zkey = await fs.readFileSync(keyBasePath + '.zkey')
+
   const witnessCalculator = await WitnessCalculatorBuilder(wasm)
   let witness = await witnessCalculator.calculateBinWitness(input)
   const prover = await buildBn128()
-  witness = new Uint8Array([...Buffer.from(witness)])
-  zkey = new Uint8Array([...Buffer.from(zkey)])
+  // witness = new Uint8Array([...Buffer.from(witness)])
+
   console.log(typeof witness, typeof zkey, witness, zkey)
-  const proof = await prover.groth16GenProof(witness, zkey)
+  const proof = await prover.groth16GenProof(witness.buffer, zkey.buffer)
   return (
     '0x' +
     toFixedHex(proof.pi_a[0]).slice(2) +
