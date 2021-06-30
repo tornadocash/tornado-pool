@@ -5,10 +5,35 @@ const fs = require('fs')
 const tmp = require('tmp-promise')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
+const { WitnessCalculatorBuilder } = require('circom_runtime')
+const { buildBn128 } = require('wasmsnark')
 
 const { toFixedHex } = require('./utils')
 
 async function prove(input, keyBasePath) {
+  const wasm = await fs.readFileSync(keyBasePath + '.wasm')
+  let zkey = await fs.readFileSync(keyBasePath + '.zkey')
+  const witnessCalculator = await WitnessCalculatorBuilder(wasm)
+  let witness = await witnessCalculator.calculateBinWitness(input)
+  const prover = await buildBn128()
+  witness = new Uint8Array([...Buffer.from(witness)])
+  zkey = new Uint8Array([...Buffer.from(zkey)])
+  console.log(typeof witness, typeof zkey, witness, zkey)
+  const proof = await prover.groth16GenProof(witness, zkey)
+  return (
+    '0x' +
+    toFixedHex(proof.pi_a[0]).slice(2) +
+    toFixedHex(proof.pi_a[1]).slice(2) +
+    toFixedHex(proof.pi_b[0][1]).slice(2) +
+    toFixedHex(proof.pi_b[0][0]).slice(2) +
+    toFixedHex(proof.pi_b[1][1]).slice(2) +
+    toFixedHex(proof.pi_b[1][0]).slice(2) +
+    toFixedHex(proof.pi_c[0]).slice(2) +
+    toFixedHex(proof.pi_c[1]).slice(2)
+  )
+}
+
+async function prove1(input, keyBasePath) {
   const { proof } = await groth16.fullProve(
     utils.stringifyBigInts(input),
     `${keyBasePath}.wasm`,

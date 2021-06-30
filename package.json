@@ -38,7 +38,8 @@
     "fixed-merkle-tree": "^0.5.0",
     "hardhat": "^2.3.0",
     "snarkjs": "git+https://github.com/tornadocash/snarkjs.git#c103e3bf10e95e2e9bbf0f7952ed13812f8e39d3",
-    "tmp-promise": "^3.0.2"
+    "tmp-promise": "^3.0.2",
+    "wasmsnark": "^0.0.10"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
